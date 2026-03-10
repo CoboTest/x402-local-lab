@@ -34,6 +34,52 @@ function isTestnet(network: string) {
   );
 }
 
+function networkDisplayName(network: string) {
+  const n = network.toLowerCase();
+  const map: Record<string, string> = {
+    "eip155:84532": "Base Sepolia",
+    "eip155:8453": "Base",
+    "eip155:43114": "Avalanche",
+    "eip155:43113": "Avalanche Fuji",
+    "eip155:137": "Polygon",
+    "eip155:80002": "Polygon Amoy",
+    "eip155:1329": "Sei",
+    "eip155:713715": "Sei Testnet",
+    "eip155:1187947933": "SKALE Base",
+    "eip155:324705682": "SKALE Base Sepolia",
+    "eip155:196": "X Layer",
+    "eip155:1952": "X Layer Testnet",
+    "eip155:3338": "Peaq",
+    "eip155:4689": "IoTeX",
+    "eip155:143": "Monad",
+    "eip155:10143": "Monad Testnet",
+    "solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp": "Solana Mainnet",
+    "solana:etwtrabzayq6imfeykouru166vu2xqa1": "Solana Devnet",
+    "stellar:testnet": "Stellar Testnet",
+    "aptos:2": "Aptos Testnet",
+    "v1:base": "Base",
+    "v1:base-sepolia": "Base Sepolia",
+    "v1:avalanche": "Avalanche",
+    "v1:avalanche-fuji": "Avalanche Fuji",
+    "v1:polygon": "Polygon",
+    "v1:polygon-amoy": "Polygon Amoy",
+    "v1:sei": "Sei",
+    "v1:sei-testnet": "Sei Testnet",
+    "v1:xlayer": "X Layer",
+    "v1:xlayer-testnet": "X Layer Testnet",
+    "v1:solana": "Solana Mainnet",
+    "v1:solana-mainnet-beta": "Solana Mainnet",
+    "v1:solana-devnet": "Solana Devnet",
+    "v1:skale-base": "SKALE Base",
+    "v1:skale-base-sepolia": "SKALE Base Sepolia",
+    "v1:peaq": "Peaq",
+    "v1:iotex": "IoTeX",
+    "v1:monad": "Monad",
+    "v1:monad-testnet": "Monad Testnet",
+  };
+  return map[n] || map[`v1:${n}`] || network;
+}
+
 function shortName(url: string) {
   try {
     const h = new URL(url).hostname;
@@ -92,6 +138,7 @@ function buildUnifiedRows(results: any[]) {
           key,
           version: `v${k.x402Version}`,
           network: k.network,
+          networkName: networkDisplayName(k.network),
           env: isTestnet(k.network) ? "测试网" : "主网",
           support: {},
         });
@@ -115,12 +162,12 @@ function markdownMatrixZh(results: any[]) {
 
   lines.push("## 统一支持表（每列一个 Facilitator，每行一个网络）");
   lines.push("");
-  lines.push(`| 网络(v:network) | 环境 | ${cols.join(" | ")} |`);
-  lines.push(`|---|---|${cols.map(() => "---").join("|")}|`);
+  lines.push(`| 网络(v:network) | 网络名称 | 环境 | ${cols.join(" | ")} |`);
+  lines.push(`|---|---|---|${cols.map(() => "---").join("|")}|`);
 
   for (const row of rows) {
     const cells = cols.map(c => (row.support[c] ? `✅ ${row.support[c]}` : "—"));
-    lines.push(`| ${row.key} | ${row.env} | ${cells.join(" | ")} |`);
+    lines.push(`| ${row.key} | ${row.networkName} | ${row.env} | ${cells.join(" | ")} |`);
   }
 
   lines.push("");
