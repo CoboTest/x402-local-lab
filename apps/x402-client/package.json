@@ -1,0 +1,19 @@
+{
+  "name": "@x402-local/client",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@x402-local/config": "workspace:*",
+    "@x402-local/payment-core": "workspace:*",
+    "@x402-local/signer": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5"
+  }
+}
