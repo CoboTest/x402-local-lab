@@ -23,8 +23,7 @@ sequenceDiagram
     C->>S: GET /premium/data (无支付头)
     S-->>C: 402 + PAYMENT-REQUIRED(base64)
 
-    Note over C: 解析 accepts/scheme/network/asset/amount/payTo
-并构造 paymentPayload
+    Note over C: 解析 accepts/scheme/network/asset/amount/payTo<br/>并构造 paymentPayload
     C->>C: 使用私钥签名 -> PAYMENT-SIGNATURE
 
     C->>S: GET /premium/data + PAYMENT-SIGNATURE
