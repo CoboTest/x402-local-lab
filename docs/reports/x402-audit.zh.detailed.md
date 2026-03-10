@@ -285,6 +285,27 @@ PAYMENT-REQUIRED 解码：
 - 保证私钥仅在 client 侧存在，不进入 server 日志。
 - 在生产环境启用更细粒度审计字段（requestId、nonce、签名摘要等）。
 
+## 6) 可补充信息（建议增强）
+
+### 6.1 参数可读化（建议固定展示）
+- `network`: `eip155:84532`（Base Sepolia，chainId=84532）
+- `asset`: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`（USDC，decimals=6）
+- `amount`: `1000`（即 `0.001 USDC`）
+- `authorization.validAfter`: `1773154767`
+- `authorization.validBefore`: `1773155667`
+- 签名有效窗口：`900s`（15 分钟）
+
+### 6.2 外部核验链接（建议保留）
+- Tx: <https://sepolia.basescan.org/tx/0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6>
+- Payer: <https://sepolia.basescan.org/address/0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24>
+- Facilitator signer: <https://sepolia.basescan.org/address/0xd407e409e34e0b9afb99ecceb609bdbcd5e7f1bf>
+- USDC 合约: <https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e>
+
+### 6.3 执行环境（建议固化）
+- 运行模式：Docker Compose（server/client）
+- 服务暴露：`127.0.0.1:4020`（仅本机）
+- Facilitator：`https://x402.org/facilitator`
+
 ---
 
 > 该报告由 `scripts/render-audit-report-detailed.mjs` 从 JSON 运行产物自动生成。
