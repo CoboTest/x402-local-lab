@@ -9,6 +9,66 @@
 
 ## 0) 执行概览
 
+
+## 时序图（x402 双跳支付）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client (x402-client)
+    participant S as Server (x402-server)
+    participant F as Facilitator (x402.org)
+    participant B as Base Sepolia
+
+    C->>S: GET /premium/data (无支付头)
+    S-->>C: 402 + PAYMENT-REQUIRED(base64)
+
+    Note over C: 解析 accepts/scheme/network/asset/amount/payTo
+并构造 paymentPayload
+    C->>C: 使用私钥签名 -> PAYMENT-SIGNATURE
+
+    C->>S: GET /premium/data + PAYMENT-SIGNATURE
+    S->>F: verify(paymentPayload, requirements)
+    F-->>S: isValid=true
+    S->>F: settle(paymentPayload, requirements)
+    F->>B: 发起链上结算交易
+    B-->>F: txHash + receipt
+    F-->>S: success + transaction + payer
+
+    S-->>C: 200 + PAYMENT-RESPONSE(base64)
+```
+
+## 关键步骤说明（逐步）
+
+1. **发现资源受保护**  
+   Client 首跳不带支付，若资源需要付费，Server 返回 402，并通过 `PAYMENT-REQUIRED` 明确支付条件。
+
+2. **解析支付条件并做本地校验**  
+   Client 必须核对 `network/asset/payTo/amount/maxTimeoutSeconds` 是否符合预期，防止错链、错币或目标地址被替换。
+
+3. **生成签名载荷（Payment Payload）**  
+   Client 从 requirements 选定一条 `accepted`，按 x402 exact 规则构造 payload。
+
+4. **本地签名**  
+   Client 用本地私钥对 payload 进行签名，输出 `payload.signature`，并封装为 `PAYMENT-SIGNATURE` header。
+
+5. **二跳重试**  
+   Client 携带 `PAYMENT-SIGNATURE` 重试同一资源请求，进入服务端验签结算路径。
+
+6. **服务端验签（verify）**  
+   Server 调 facilitator `verify` 检查签名有效性与参数一致性（与 requirements 匹配）。
+
+7. **服务端结算（settle）**  
+   验签通过后，Server 调 facilitator `settle`，facilitator 在目标链上提交结算交易。
+
+8. **返回业务数据 + 结算回执**  
+   成功后 Server 返回 200，并在 `PAYMENT-RESPONSE` 带回 `success/transaction/network/payer`。
+
+9. **链上核验闭环**  
+   Client/审计脚本可按 `txHash` 查询 receipt，与 HTTP 回执交叉验证，形成可审计证据链。
+
+---
+
 本次流程遵循 x402 标准双跳模式：
 1. **首跳（未携带支付）**：客户端请求受保护资源，服务端返回 `402 Payment Required` 与 `PAYMENT-REQUIRED`。
 2. **二跳（携带支付签名）**：客户端根据首跳参数构造并签名支付对象，附带 `PAYMENT-SIGNATURE` 重试请求。
