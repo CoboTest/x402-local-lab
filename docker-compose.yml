@@ -1,0 +1,27 @@
+services:
+  x402-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: x402-server
+    working_dir: /app
+    command: ["pnpm", "--filter", "@x402-local/server", "dev"]
+    env_file:
+      - .env
+    ports:
+      - "4020:4020"
+    restart: unless-stopped
+
+  x402-client-run:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: x402-client-run
+    working_dir: /app
+    command: ["pnpm", "--filter", "@x402-local/client", "exec", "tsx", "src/run-and-report.ts"]
+    env_file:
+      - .env
+    depends_on:
+      - x402-server
+    profiles:
+      - run
