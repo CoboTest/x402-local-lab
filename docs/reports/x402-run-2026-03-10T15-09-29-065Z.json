@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "timestamp": "2026-03-10T15:09:29.065Z",
+    "resourceUrl": "http://localhost:4020/premium/data",
+    "facilitatorUrl": "https://x402.org/facilitator",
+    "durationMs": {
+      "request1": 3,
+      "request2": 1120,
+      "total": 1123
+    }
+  },
+  "addresses": {
+    "payer": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+    "payTo": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+    "usdcBaseSepolia": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "facilitatorSigners": {
+      "eip155:*": [
+        "0xd407e409E34E0b9afb99EcCeb609bDbcD5e7f1bf"
+      ],
+      "solana:*": [
+        "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5"
+      ],
+      "aptos:*": [
+        "0x1be1a717b48c46c83a2a6a53205aff6123610961560b2b08968a344c4da24b1e"
+      ],
+      "stellar:*": [
+        "GC6CSXBV4C6RL3HEDTW57KXYXSSXKAWKGYDEOSATXM3XNKXSR2VRYN3K",
+        "GC5OLUZ4WANPN6VT7YGTK2SRMZG762KOVKJXHWIO4K57UBASO2FMNRET"
+      ]
+    }
+  },
+  "balances": {
+    "before": {
+      "eth": "0.01",
+      "usdc": "40",
+      "usdcRaw": "40000000"
+    },
+    "after": {
+      "eth": "0.01",
+      "usdc": "40",
+      "usdcRaw": "40000000"
+    }
+  },
+  "http": {
+    "firstRequest": {
+      "method": "GET",
+      "url": "http://localhost:4020/premium/data",
+      "headers": {}
+    },
+    "firstResponse": {
+      "status": 402,
+      "headers": {
+        "paymentRequired": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL2xvY2FsaG9zdDo0MDIwL3ByZW1pdW0vZGF0YSIsImRlc2NyaXB0aW9uIjoiUHJlbWl1bSB4NDAyLXByb3RlY3RlZCBKU09OIiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHg5MkY2RTlkZUJiRWI3NzhhMjQ1OTE2Q2Y1MkREN0Y1NDQyOUZmZjI0IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV19"
+      },
+      "bodyText": "{}",
+      "paymentRequiredDecoded": {
+        "x402Version": 2,
+        "error": "Payment required",
+        "resource": {
+          "url": "http://localhost:4020/premium/data",
+          "description": "Premium x402-protected JSON",
+          "mimeType": "application/json"
+        },
+        "accepts": [
+          {
+            "scheme": "exact",
+            "network": "eip155:84532",
+            "amount": "1000",
+            "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+            "payTo": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+            "maxTimeoutSeconds": 300,
+            "extra": {
+              "name": "USDC",
+              "version": "2"
+            }
+          }
+        ]
+      }
+    },
+    "secondRequest": {
+      "method": "GET",
+      "url": "http://localhost:4020/premium/data",
+      "headers": {
+        "PAYMENT-SIGNATURE": "eyJ4NDAyVmVyc2lvbiI6MiwicGF5bG9hZCI6eyJhdXRob3JpemF0aW9uIjp7ImZyb20iOiIweDkyRjZFOWRlQmJFYjc3OGEyNDU5MTZDZjUyREQ3RjU0NDI5RmZmMjQiLCJ0byI6IjB4OTJGNkU5ZGVCYkViNzc4YTI0NTkxNkNmNTJERDdGNTQ0MjlGZmYyNCIsInZhbHVlIjoiMTAwMCIsInZhbGlkQWZ0ZXIiOiIxNzczMTU0NzY3IiwidmFsaWRCZWZvcmUiOiIxNzczMTU1NjY3Iiwibm9uY2UiOiIweDQ2YWNhN2FmYzAzYmU5ODBjMjI4MWE3NDBiOWYxY2ZmYTgxYWE3NGZmNmI2ZTUxYjIzNDA4MDMwMjI1OGM0ZTcifSwic2lnbmF0dXJlIjoiMHg1YTlkNGFkOWI2ZTI4MDMxY2Y2ZWNkNTJjOGFjNTdjYWYzNzJlOWU4ZjY2YTkwZjBmMjI5NDdlZGEyZTA5MDAyMzY2YjQyYWEyYTczNWEwNzA0NTYyYWNmOWE3ZDA2M2M0OGY2OWY3MzdlNmEyYjFlNWUyNzY0ZTRiNTc4ODY1ZjFjIn0sInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDAyMC9wcmVtaXVtL2RhdGEiLCJkZXNjcmlwdGlvbiI6IlByZW1pdW0geDQwMi1wcm90ZWN0ZWQgSlNPTiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4OTJGNkU5ZGVCYkViNzc4YTI0NTkxNkNmNTJERDdGNTQ0MjlGZmYyNCIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX19"
+      },
+      "paymentSignatureDecoded": {
+        "x402Version": 2,
+        "payload": {
+          "authorization": {
+            "from": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+            "to": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+            "value": "1000",
+            "validAfter": "1773154767",
+            "validBefore": "1773155667",
+            "nonce": "0x46aca7afc03be980c2281a740b9f1cffa81aa74ff6b6e51b234080302258c4e7"
+          },
+          "signature": "0x5a9d4ad9b6e28031cf6ecd52c8ac57caf372e9e8f66a90f0f22947eda2e09002366b42aa2a735a0704562acf9a7d063c48f69f737e6a2b1e5e2764e4b578865f1c"
+        },
+        "resource": {
+          "url": "http://localhost:4020/premium/data",
+          "description": "Premium x402-protected JSON",
+          "mimeType": "application/json"
+        },
+        "accepted": {
+          "scheme": "exact",
+          "network": "eip155:84532",
+          "amount": "1000",
+          "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "payTo": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+          "maxTimeoutSeconds": 300,
+          "extra": {
+            "name": "USDC",
+            "version": "2"
+          }
+        }
+      }
+    },
+    "secondResponse": {
+      "status": 200,
+      "headers": {
+        "paymentResponse": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YTc1M2M4MzY3NjMwM2JmNTY3NWU2NjhiN2M3MDBjMjBkODM0ZTY4ODJlMGM3ZTJiNDViZDAxZDA4ZjM2NDJhNiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4OTJGNkU5ZGVCYkViNzc4YTI0NTkxNkNmNTJERDdGNTQ0MjlGZmYyNCJ9",
+        "paymentRequired": null
+      },
+      "bodyText": "{\"data\":{\"message\":\"x402 payment succeeded\",\"timestamp\":\"2026-03-10T15:09:28.177Z\"}}",
+      "paymentResponseDecoded": {
+        "success": true,
+        "transaction": "0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6",
+        "network": "eip155:84532",
+        "payer": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24"
+      }
+    }
+  },
+  "signing": {
+    "paymentPayload": {
+      "x402Version": 2,
+      "payload": {
+        "authorization": {
+          "from": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+          "to": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+          "value": "1000",
+          "validAfter": "1773154767",
+          "validBefore": "1773155667",
+          "nonce": "0x46aca7afc03be980c2281a740b9f1cffa81aa74ff6b6e51b234080302258c4e7"
+        },
+        "signature": "0x5a9d4ad9b6e28031cf6ecd52c8ac57caf372e9e8f66a90f0f22947eda2e09002366b42aa2a735a0704562acf9a7d063c48f69f737e6a2b1e5e2764e4b578865f1c"
+      },
+      "resource": {
+        "url": "http://localhost:4020/premium/data",
+        "description": "Premium x402-protected JSON",
+        "mimeType": "application/json"
+      },
+      "accepted": {
+        "scheme": "exact",
+        "network": "eip155:84532",
+        "amount": "1000",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "payTo": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+        "maxTimeoutSeconds": 300,
+        "extra": {
+          "name": "USDC",
+          "version": "2"
+        }
+      }
+    },
+    "signatureObject": {
+      "x402Version": 2,
+      "payload": {
+        "authorization": {
+          "from": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+          "to": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+          "value": "1000",
+          "validAfter": "1773154767",
+          "validBefore": "1773155667",
+          "nonce": "0x46aca7afc03be980c2281a740b9f1cffa81aa74ff6b6e51b234080302258c4e7"
+        },
+        "signature": "0x5a9d4ad9b6e28031cf6ecd52c8ac57caf372e9e8f66a90f0f22947eda2e09002366b42aa2a735a0704562acf9a7d063c48f69f737e6a2b1e5e2764e4b578865f1c"
+      },
+      "resource": {
+        "url": "http://localhost:4020/premium/data",
+        "description": "Premium x402-protected JSON",
+        "mimeType": "application/json"
+      },
+      "accepted": {
+        "scheme": "exact",
+        "network": "eip155:84532",
+        "amount": "1000",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "payTo": "0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24",
+        "maxTimeoutSeconds": 300,
+        "extra": {
+          "name": "USDC",
+          "version": "2"
+        }
+      }
+    }
+  },
+  "settlement": {
+    "txHash": "0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6",
+    "txReceipt": {
+      "blobGasUsed": "27800",
+      "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "blockNumber": "38693541",
+      "contractAddress": null,
+      "cumulativeGasUsed": "6481440",
+      "daFootprintGasScalar": "0x8b",
+      "effectiveGasPrice": "6000000",
+      "from": "0xd407e409e34e0b9afb99ecceb609bdbcd5e7f1bf",
+      "gasUsed": "78188",
+      "l1BaseFeeScalar": "0x44d",
+      "l1BlobBaseFee": "0x1",
+      "l1BlobBaseFeeScalar": "0xa118b",
+      "l1Fee": "704",
+      "l1GasPrice": "13",
+      "l1GasUsed": "3213",
+      "logs": [
+        {
+          "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "blockNumber": "38693541",
+          "blockTimestamp": "1773155370",
+          "data": "0x",
+          "logIndex": 166,
+          "removed": false,
+          "topics": [
+            "0x98de503528ee59b575ef0c0a2576a82497bfc029a5685b209e9ec333479b10a5",
+            "0x00000000000000000000000092f6e9debbeb778a245916cf52dd7f54429fff24",
+            "0x46aca7afc03be980c2281a740b9f1cffa81aa74ff6b6e51b234080302258c4e7"
+          ],
+          "transactionHash": "0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6",
+          "transactionIndex": 19
+        },
+        {
+          "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "blockNumber": "38693541",
+          "blockTimestamp": "1773155370",
+          "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+          "logIndex": 167,
+          "removed": false,
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x00000000000000000000000092f6e9debbeb778a245916cf52dd7f54429fff24",
+            "0x00000000000000000000000092f6e9debbeb778a245916cf52dd7f54429fff24"
+          ],
+          "transactionHash": "0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6",
+          "transactionIndex": 19
+        }
+      ],
+      "logsBloom": "0x00000000040000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000200000000000000000000000040000008000000000000000000000000000001000000000800000000000000000000000000000000000000000020008000000010000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000004000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000400000020000000000000000000000000000000000000",
+      "status": "success",
+      "to": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+      "transactionHash": "0xa753c83676303bf5675e668b7c700c20d834e6882e0c7e2b45bd01d08f3642a6",
+      "transactionIndex": 19,
+      "type": "eip1559",
+      "l1FeeScalar": null
+    }
+  }
+}
