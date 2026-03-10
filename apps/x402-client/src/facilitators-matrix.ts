@@ -133,22 +133,45 @@ function buildUnifiedRows(results: any[]) {
     const col = shortName(r.facilitator);
     if (!r.ok) continue;
     for (const k of r.kinds || []) {
-      const key = `v${k.x402Version}:${k.network}`;
+      const name = networkDisplayName(k.network);
+      const env = isTestnet(k.network) ? "测试网" : "主网";
+      const key = `${name}__${env}`;
+
       if (!rows.has(key)) {
         rows.set(key, {
           key,
-          version: `v${k.x402Version}`,
-          network: k.network,
-          networkName: networkDisplayName(k.network),
-          env: isTestnet(k.network) ? "测试网" : "主网",
+          networkName: name,
+          env,
+          aliases: new Set<string>(),
           support: {},
         });
       }
-      rows.get(key).support[col] = k.scheme ?? "exact";
+
+      const row = rows.get(key);
+      row.aliases.add(`v${k.x402Version}:${k.network}`);
+      if (!row.support[col]) {
+        row.support[col] = { versions: new Set<string>(), schemes: new Set<string>() };
+      }
+      row.support[col].versions.add(`v${k.x402Version}`);
+      row.support[col].schemes.add(k.scheme ?? "exact");
     }
   }
 
-  return [...rows.values()].sort((a, b) => a.key.localeCompare(b.key));
+  const out = [...rows.values()].map((r: any) => ({
+    ...r,
+    aliases: [...r.aliases].sort(),
+    support: Object.fromEntries(
+      Object.entries(r.support).map(([k, v]: any) => [
+        k,
+        {
+          versions: [...v.versions].sort(),
+          schemes: [...v.schemes].sort(),
+        },
+      ]),
+    ),
+  }));
+
+  return out.sort((a, b) => `${a.env}-${a.networkName}`.localeCompare(`${b.env}-${b.networkName}`));
 }
 
 function markdownMatrixZh(results: any[]) {
@@ -164,23 +187,31 @@ function markdownMatrixZh(results: any[]) {
   const mainRows = rows.filter(r => r.env === "主网");
   const testRows = rows.filter(r => r.env === "测试网");
 
-  lines.push("## 主网支持表（每列一个 Facilitator，每行一个网络）");
+  lines.push("## 主网支持表（按网络名称聚合）");
   lines.push("");
-  lines.push(`| 网络(v:network) | 网络名称 | ${cols.join(" | ")} |`);
+  lines.push(`| 网络名称 | 映射标识(v:network) | ${cols.join(" | ")} |`);
   lines.push(`|---|---|${cols.map(() => "---").join("|")}|`);
   for (const row of mainRows) {
-    const cells = cols.map(c => (row.support[c] ? `✅ ${row.support[c]}` : "—"));
-    lines.push(`| ${row.key} | ${row.networkName} | ${cells.join(" | ")} |`);
+    const cells = cols.map(c => {
+      const s = row.support[c];
+      if (!s) return "—";
+      return `✅ ${s.versions.join("/")} (${s.schemes.join(",")})`;
+    });
+    lines.push(`| ${row.networkName} | ${row.aliases.join("<br/>")} | ${cells.join(" | ")} |`);
   }
 
   lines.push("");
-  lines.push("## 测试网支持表（每列一个 Facilitator，每行一个网络）");
+  lines.push("## 测试网支持表（按网络名称聚合）");
   lines.push("");
-  lines.push(`| 网络(v:network) | 网络名称 | ${cols.join(" | ")} |`);
+  lines.push(`| 网络名称 | 映射标识(v:network) | ${cols.join(" | ")} |`);
   lines.push(`|---|---|${cols.map(() => "---").join("|")}|`);
   for (const row of testRows) {
-    const cells = cols.map(c => (row.support[c] ? `✅ ${row.support[c]}` : "—"));
-    lines.push(`| ${row.key} | ${row.networkName} | ${cells.join(" | ")} |`);
+    const cells = cols.map(c => {
+      const s = row.support[c];
+      if (!s) return "—";
+      return `✅ ${s.versions.join("/")} (${s.schemes.join(",")})`;
+    });
+    lines.push(`| ${row.networkName} | ${row.aliases.join("<br/>")} | ${cells.join(" | ")} |`);
   }
 
   lines.push("");
