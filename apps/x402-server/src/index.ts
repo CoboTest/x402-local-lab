@@ -51,6 +51,7 @@ app.get("/premium/data", (_req, res) => {
 });
 
 const port = Number(process.env.PORT ?? 4020);
-app.listen(port, () => {
-  console.log(`[x402-server] listening on http://localhost:${port}`);
+const host = process.env.HOST ?? "127.0.0.1";
+app.listen(port, host, () => {
+  console.log(`[x402-server] listening on http://${host}:${port}`);
 });
