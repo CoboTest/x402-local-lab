@@ -1,4 +1,4 @@
-# x402 详细审计报告（中文）
+# x402 详细过程解析（中文）
 
 - 运行时间：{{meta.timestamp}}
 - 资源地址：{{meta.resourceUrl}}
@@ -64,7 +64,7 @@ sequenceDiagram
    成功后 Server 返回 200，并在 `PAYMENT-RESPONSE` 带回 `success/transaction/network/payer`。
 
 9. **链上核验闭环**  
-   Client/审计脚本可按 `txHash` 查询 receipt，与 HTTP 回执交叉验证，形成可审计证据链。
+   Client/过程解析脚本可按 `txHash` 查询 receipt，与 HTTP 回执交叉验证，形成可过程解析证据链。
 
 ---
 
@@ -236,8 +236,8 @@ PAYMENT-REQUIRED 解码：
 - 检查 `network/asset` 是否为预期测试网资产（防错链）。
 - 检查 `maxTimeoutSeconds` 是否合理（防重放窗口过大）。
 - 保证私钥仅在 client 侧存在，不进入 server 日志。
-- 在生产环境启用更细粒度审计字段（requestId、nonce、签名摘要等）。
+- 在生产环境启用更细粒度过程解析字段（requestId、nonce、签名摘要等）。
 
 ---
 
-> 该报告由 `scripts/render-audit-report-detailed.mjs` 从 JSON 运行产物自动生成。
+> 该报告由 `scripts/render-process-report.mjs` 从 JSON 运行产物自动生成。
