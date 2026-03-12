@@ -89,15 +89,31 @@ sequenceDiagram
 - URL：`{{http.firstRequest.url}}`
 - 响应状态：`{{http.firstResponse.status}}`（预期应为 402）
 
-### 1.2 PAYMENT-REQUIRED 关键字段解释
+### 1.2 PAYMENT-REQUIRED 关键字段解释（按层级）
 
-- `scheme`: 支付方案。当前为 `exact`（精确金额支付）。
-- `network`: 链标识（CAIP 风格），如 `eip155:84532` 表示 Base Sepolia。
-- `asset`: 代币合约地址（本次为 Base Sepolia USDC）。
-- `amount`: 支付最小单位（USDC 6 位精度，`1000`=0.001 USDC）。
-- `payTo`: 收款地址。
-- `maxTimeoutSeconds`: 签名有效窗口，防止支付对象被长期重放。
-- `resource`: 被保护资源描述（URL、description、mimeType）。
+- 根对象
+  - `x402Version`: 协议版本。
+  - `error`: 错误说明（通常是 `Payment required`）。
+  - `resource`: 资源元信息对象。
+  - `accepts`: 可接受支付条件数组（可多条）。
+
+- `resource` 对象
+  - `resource.url`: 被保护资源 URL。
+  - `resource.description`: 资源描述。
+  - `resource.mimeType`: 返回内容类型。
+
+- `accepts[]` 数组中的单条（核心支付条款）
+  - `accepts[i].scheme`: 支付方案（当前常见 `exact`）。
+  - `accepts[i].network`: 网络标识（CAIP 风格，如 `eip155:84532`）。
+  - `accepts[i].asset`: 资产合约地址（例如 Base Sepolia USDC）。
+  - `accepts[i].amount`: 支付最小单位金额（USDC 6 位精度时，`1000`=0.001 USDC）。
+  - `accepts[i].payTo`: 收款地址。
+  - `accepts[i].maxTimeoutSeconds`: 授权有效窗口（防重放）。
+  - `accepts[i].extra`: 资产/域附加信息。
+
+- `accepts[i].extra` 对象（EVM 常见）
+  - `accepts[i].extra.name`: EIP-712 domain name（例如 `USDC`）。
+  - `accepts[i].extra.version`: EIP-712 domain version（例如 `2`）。
 
 PAYMENT-REQUIRED 原文（header）：
 `{{http.firstResponse.headers.paymentRequired}}`
@@ -120,13 +136,29 @@ PAYMENT-REQUIRED 解码：
 - PAYMENT-SIGNATURE（原文）：
 `{{http.secondRequest.headers.PAYMENT-SIGNATURE}}`
 
-### 2.2 签名对象解释
+### 2.2 签名对象解释（按层级）
 
-签名对象一般包含：
-- `x402Version`：协议版本（本次 v2）
-- `accepted`：实际接受的支付条款（应与 `PAYMENT-REQUIRED.accepts` 匹配）
-- `payload.signature`：私钥对支付对象的签名结果
-- 与 `network/asset/amount/payTo` 绑定的关键字段（防篡改）
+- 根对象
+  - `x402Version`: 协议版本。
+  - `payload`: 签名载荷对象。
+  - `resource`: 资源对象（与首跳 challenge 对齐）。
+  - `accepted`: 本次选择并接受的支付条款（应来自 `PAYMENT-REQUIRED.accepts[]`）。
+
+- `payload` 对象
+  - `payload.authorization`: 实际授权消息（被签名核心）。
+  - `payload.signature`: 对授权消息的签名结果（hex）。
+
+- `payload.authorization` 对象（EIP-3009 风格）
+  - `payload.authorization.from`: 授权付款方。
+  - `payload.authorization.to`: 授权收款方。
+  - `payload.authorization.value`: 授权金额（最小单位）。
+  - `payload.authorization.validAfter`: 生效起始时间。
+  - `payload.authorization.validBefore`: 失效时间。
+  - `payload.authorization.nonce`: 随机 nonce（防重放）。
+
+- `accepted` 对象（验签与结算绑定）
+  - `accepted.scheme/network/asset/amount/payTo/maxTimeoutSeconds/extra`：
+    与首跳条款一致；facilitator 会据此验证签名与请求参数的一致性。
 
 支付方地址（Payer）：`{{addresses.payer}}`
 

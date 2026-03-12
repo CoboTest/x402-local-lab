@@ -89,15 +89,31 @@ sequenceDiagram
 - URL：`http://localhost:4020/premium/data`
 - 响应状态：`402`（预期应为 402）
 
-### 1.2 PAYMENT-REQUIRED 关键字段解释
+### 1.2 PAYMENT-REQUIRED 关键字段解释（按层级）
 
-- `scheme`: 支付方案。当前为 `exact`（精确金额支付）。
-- `network`: 链标识（CAIP 风格），如 `eip155:84532` 表示 Base Sepolia。
-- `asset`: 代币合约地址（本次为 Base Sepolia USDC）。
-- `amount`: 支付最小单位（USDC 6 位精度，`1000`=0.001 USDC）。
-- `payTo`: 收款地址。
-- `maxTimeoutSeconds`: 签名有效窗口，防止支付对象被长期重放。
-- `resource`: 被保护资源描述（URL、description、mimeType）。
+- 根对象
+  - `x402Version`: `2`
+  - `error`: `Payment required`
+  - `resource`: 资源元信息对象
+  - `accepts`: 可接受支付条件数组
+
+- `resource` 对象
+  - `resource.url`: `http://localhost:4020/premium/data`
+  - `resource.description`: `Premium x402-protected JSON`
+  - `resource.mimeType`: `application/json`
+
+- `accepts[0]` 对象（本次选中条款）
+  - `accepts[0].scheme`: `exact`
+  - `accepts[0].network`: `eip155:84532`（Base Sepolia）
+  - `accepts[0].asset`: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`（USDC）
+  - `accepts[0].amount`: `1000`（即 0.001 USDC，6 decimals）
+  - `accepts[0].payTo`: `0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24`
+  - `accepts[0].maxTimeoutSeconds`: `300`
+  - `accepts[0].extra`: 资产/域附加信息
+
+- `accepts[0].extra` 对象
+  - `accepts[0].extra.name`: `USDC`
+  - `accepts[0].extra.version`: `2`
 
 PAYMENT-REQUIRED 原文（header）：
 `eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL2xvY2FsaG9zdDo0MDIwL3ByZW1pdW0vZGF0YSIsImRlc2NyaXB0aW9uIjoiUHJlbWl1bSB4NDAyLXByb3RlY3RlZCBKU09OIiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHg5MkY2RTlkZUJiRWI3NzhhMjQ1OTE2Q2Y1MkREN0Y1NDQyOUZmZjI0IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV19`
@@ -142,13 +158,34 @@ PAYMENT-REQUIRED 解码：
 - PAYMENT-SIGNATURE（原文）：
 `eyJ4NDAyVmVyc2lvbiI6MiwicGF5bG9hZCI6eyJhdXRob3JpemF0aW9uIjp7ImZyb20iOiIweDkyRjZFOWRlQmJFYjc3OGEyNDU5MTZDZjUyREQ3RjU0NDI5RmZmMjQiLCJ0byI6IjB4OTJGNkU5ZGVCYkViNzc4YTI0NTkxNkNmNTJERDdGNTQ0MjlGZmYyNCIsInZhbHVlIjoiMTAwMCIsInZhbGlkQWZ0ZXIiOiIxNzczMTU0NzY3IiwidmFsaWRCZWZvcmUiOiIxNzczMTU1NjY3Iiwibm9uY2UiOiIweDQ2YWNhN2FmYzAzYmU5ODBjMjI4MWE3NDBiOWYxY2ZmYTgxYWE3NGZmNmI2ZTUxYjIzNDA4MDMwMjI1OGM0ZTcifSwic2lnbmF0dXJlIjoiMHg1YTlkNGFkOWI2ZTI4MDMxY2Y2ZWNkNTJjOGFjNTdjYWYzNzJlOWU4ZjY2YTkwZjBmMjI5NDdlZGEyZTA5MDAyMzY2YjQyYWEyYTczNWEwNzA0NTYyYWNmOWE3ZDA2M2M0OGY2OWY3MzdlNmEyYjFlNWUyNzY0ZTRiNTc4ODY1ZjFjIn0sInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDAyMC9wcmVtaXVtL2RhdGEiLCJkZXNjcmlwdGlvbiI6IlByZW1pdW0geDQwMi1wcm90ZWN0ZWQgSlNPTiIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRlZCI6eyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4OTJGNkU5ZGVCYkViNzc4YTI0NTkxNkNmNTJERDdGNTQ0MjlGZmYyNCIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX19`
 
-### 2.2 签名对象解释
+### 2.2 签名对象解释（按层级）
 
-签名对象一般包含：
-- `x402Version`：协议版本（本次 v2）
-- `accepted`：实际接受的支付条款（应与 `PAYMENT-REQUIRED.accepts` 匹配）
-- `payload.signature`：私钥对支付对象的签名结果
-- 与 `network/asset/amount/payTo` 绑定的关键字段（防篡改）
+- 根对象
+  - `x402Version`: `2`
+  - `payload`: 签名载荷对象
+  - `resource`: 资源对象（与首跳 challenge 对齐）
+  - `accepted`: 本次接受的支付条款对象
+
+- `payload` 对象
+  - `payload.authorization`: 被签名核心消息
+  - `payload.signature`: 签名结果（hex）
+
+- `payload.authorization` 对象
+  - `payload.authorization.from`: `0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24`
+  - `payload.authorization.to`: `0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24`
+  - `payload.authorization.value`: `1000`
+  - `payload.authorization.validAfter`: `1773154767`
+  - `payload.authorization.validBefore`: `1773155667`
+  - `payload.authorization.nonce`: `0x46aca7afc03be980c2281a740b9f1cffa81aa74ff6b6e51b234080302258c4e7`
+
+- `accepted` 对象
+  - `accepted.scheme`: `exact`
+  - `accepted.network`: `eip155:84532`
+  - `accepted.asset`: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+  - `accepted.amount`: `1000`
+  - `accepted.payTo`: `0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24`
+  - `accepted.maxTimeoutSeconds`: `300`
+  - `accepted.extra`: `{ name: "USDC", version: "2" }`
 
 支付方地址（Payer）：`0x92F6E9deBbEb778a245916Cf52DD7F54429Fff24`
 
