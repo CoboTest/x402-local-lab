@@ -10,7 +10,7 @@ if(!inPath){
 }
 const absIn = path.resolve(inPath);
 const data = JSON.parse(fs.readFileSync(absIn,'utf8'));
-let tpl = fs.readFileSync(path.resolve('docs/templates/audit-report-template.zh.detailed.md'),'utf8');
+let tpl = fs.readFileSync(path.resolve('docs/templates/audit-template.md'),'utf8');
 
 const accepted = data.signing?.paymentPayload?.accepted || data.http?.firstResponse?.paymentRequiredDecoded?.accepts?.[0] || {};
 const auth = data.signing?.signatureObject?.payload?.authorization || {};
@@ -87,6 +87,6 @@ const map = {
   '{{balances.after.usdcRaw}}': String(data.balances?.after?.usdcRaw ?? ''),
 };
 for (const [k,v] of Object.entries(map)) tpl = tpl.split(k).join(v);
-const outPath = absIn.replace(/\.json$/i,'.audit.zh.detailed.md');
+const outPath = absIn.replace(/\.json$/i,'.audit.md');
 fs.writeFileSync(outPath, tpl);
 console.log(outPath);
