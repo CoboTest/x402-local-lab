@@ -8,13 +8,19 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "dev": "tsx watch src/index.ts",
     "supported": "tsx src/supported.ts",
-    "facilitators:matrix": "tsx src/facilitators-matrix.ts"
+    "facilitators:matrix": "tsx src/facilitators-matrix.ts",
+    "svm:run": "tsx src/svm-client.ts",
+    "svm:report": "tsx src/svm-run-and-report.ts"
   },
   "dependencies": {
     "@x402-local/config": "workspace:*",
     "@x402-local/signer": "workspace:*",
     "@x402/fetch": "^2.6.0",
     "@x402/evm": "^2.6.0",
+    "@x402/svm": "^2.6.0",
+    "@solana/kit": "^5.5.1",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
     "dotenv": "^16.6.1",
     "viem": "^2.37.5"
   },
