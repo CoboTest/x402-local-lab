@@ -53,7 +53,7 @@ sequenceDiagram
 | 签名格式 | EIP-712 typed data | Solana transaction（Ed25519） |
 | 签名内容 | 结构化消息（from/to/value/nonce） | 完整 transaction message（指令+账户+blockhash） |
 | 防重放 | nonce + validAfter/validBefore | recentBlockhash (~90s) + Memo nonce |
-| Gas 支付 | 买方自付（ETH） | Facilitator feePayer 代付（SOL） |
+| Gas 支付 | Facilitator signer 代付（ETH） | Facilitator feePayer 代付（SOL） |
 | 资产转移 | EIP-3009 TransferWithAuthorization | SPL Token Transfer |
 
 ---
