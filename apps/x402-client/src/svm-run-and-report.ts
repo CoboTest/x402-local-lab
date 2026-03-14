@@ -13,7 +13,7 @@ import {
 
 loadDotenv({ path: path.resolve(process.cwd(), "../../.env") });
 
-const QUICKNODE_SVM_URL = "https://x402.quicknode.com/api/v1/solana-devnet/getSlot";
+const LOCAL_SVM_URL = "http://localhost:4020/premium/svm-data";
 
 function decodeB64Json(input: string | null) {
   if (!input) return null;
@@ -43,22 +43,12 @@ async function main() {
   });
   const httpClient = new x402HTTPClient(client);
 
-  const url = process.env.SVM_RESOURCE_URL ?? QUICKNODE_SVM_URL;
-
-  const requestBody = JSON.stringify({
-    jsonrpc: "2.0",
-    method: "getSlot",
-    params: [],
-    id: 1,
-  });
-  const requestHeaders = { "Content-Type": "application/json" };
+  const url = process.env.SVM_RESOURCE_URL ?? LOCAL_SVM_URL;
 
   // --- First request ---
   const t0 = Date.now();
   const first = await fetch(url, {
-    method: "POST",
-    headers: requestHeaders,
-    body: requestBody,
+    method: "GET",
   });
   const firstBodyText = await first.text();
   const t1 = Date.now();
@@ -88,9 +78,8 @@ async function main() {
 
     // --- Second request ---
     const second = await fetch(url, {
-      method: "POST",
-      headers: { ...requestHeaders, ...paymentHeaders },
-      body: requestBody,
+      method: "GET",
+      headers: { ...paymentHeaders },
     });
     secondBodyText = await second.text();
     t2 = Date.now();
@@ -124,10 +113,8 @@ async function main() {
     },
     http: {
       firstRequest: {
-        method: "POST",
+        method: "GET",
         url,
-        headers: requestHeaders,
-        body: JSON.parse(requestBody),
       },
       firstResponse: {
         status: first.status,
@@ -139,10 +126,9 @@ async function main() {
       },
       secondRequest: secondStatus !== null
         ? {
-            method: "POST",
+            method: "GET",
             url,
-            headers: { ...requestHeaders, ...paymentHeaders },
-            body: JSON.parse(requestBody),
+            headers: { ...paymentHeaders },
             paymentSignatureDecoded,
           }
         : null,

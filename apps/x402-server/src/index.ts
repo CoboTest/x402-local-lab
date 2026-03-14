@@ -3,55 +3,65 @@ import path from "node:path";
 import express from "express";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { HTTPFacilitatorClient } from "@x402/core/server";
+import { x402Version } from "@x402/core";
 import { loadSharedConfig } from "@x402-local/config";
 
 loadDotenv({ path: path.resolve(process.cwd(), "../../.env") });
 const cfg = loadSharedConfig();
 
-const app = express();
+const evmNetwork = cfg.X402_NETWORK as `${string}:${string}`;
+const svmNetwork = cfg.X402_SVM_NETWORK as `${string}:${string}`;
+
 const facilitatorClient = new HTTPFacilitatorClient({ url: cfg.X402_FACILITATOR_URL });
-const network = cfg.X402_NETWORK as `${string}:${string}`;
-const resourceServer = new x402ResourceServer(facilitatorClient).register(
-  network,
-  new ExactEvmScheme(),
-);
+const resourceServer = new x402ResourceServer(facilitatorClient)
+  .register(evmNetwork, new ExactEvmScheme())
+  .register(svmNetwork, new ExactSvmScheme());
 
-app.use(
-  paymentMiddleware(
-    {
-      "GET /premium/data": {
-        accepts: [
-          {
-            scheme: "exact",
-            price: cfg.X402_PRICE_USD,
-            network,
-            payTo: cfg.X402_SELLER_PAYTO,
-          },
-        ],
-        description: "Premium x402-protected JSON",
-        mimeType: "application/json",
-      },
-    },
-    resourceServer,
-  ),
-);
+const routes: Record<string, any> = {
+  "GET /premium/data": {
+    accepts: [{ scheme: "exact", price: cfg.X402_PRICE_USD, network: evmNetwork, payTo: cfg.X402_SELLER_PAYTO }],
+    description: "Premium x402-protected JSON",
+    mimeType: "application/json",
+  },
+};
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
+if (cfg.X402_SVM_SELLER_PAYTO) {
+  routes["GET /premium/svm-data"] = {
+    accepts: [{ scheme: "exact", price: cfg.X402_PRICE_USD, network: svmNetwork, asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", payTo: cfg.X402_SVM_SELLER_PAYTO }],
+    description: "Premium x402-protected JSON (SVM)",
+    mimeType: "application/json",
+  };
+}
 
-app.get("/premium/data", (_req, res) => {
-  res.json({
-    data: {
-      message: "x402 payment succeeded",
-      timestamp: new Date().toISOString(),
-    },
+// Initialize first, then start server
+resourceServer.initialize().then(() => {
+  console.log("[x402-server] resourceServer initialized");
+
+  // Debug: check supported kinds
+  const evmKind = resourceServer.getSupportedKind(x402Version, evmNetwork, "exact");
+  const svmKind = resourceServer.getSupportedKind(x402Version, svmNetwork, "exact");
+  console.log(`[x402-server] EVM kind after init: ${evmKind ? "FOUND" : "NOT FOUND"}`);
+  console.log(`[x402-server] SVM kind after init: ${svmKind ? "FOUND" : "NOT FOUND"}`);
+
+  const app = express();
+  app.use(paymentMiddleware(routes, resourceServer, undefined, undefined, false));
+
+  app.get("/health", (_req, res) => { res.json({ ok: true }); });
+  app.get("/premium/data", (_req, res) => {
+    res.json({ data: { message: "x402 payment succeeded", timestamp: new Date().toISOString() } });
   });
-});
+  app.get("/premium/svm-data", (_req, res) => {
+    res.json({ data: { message: "x402 SVM payment succeeded", timestamp: new Date().toISOString() } });
+  });
 
-const port = Number(process.env.PORT ?? 4020);
-const host = process.env.HOST ?? "127.0.0.1";
-app.listen(port, host, () => {
-  console.log(`[x402-server] listening on http://${host}:${port}`);
+  const port = Number(process.env.PORT ?? 4020);
+  const host = process.env.HOST ?? "127.0.0.1";
+  app.listen(port, host, () => {
+    console.log(`[x402-server] listening on http://${host}:${port}`);
+  });
+}).catch((err: any) => {
+  console.error("[x402-server] init failed:", err.message);
+  process.exit(1);
 });

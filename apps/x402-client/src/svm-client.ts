@@ -8,7 +8,7 @@ import { toClientSvmSigner, SOLANA_DEVNET_CAIP2 } from "@x402/svm";
 
 loadDotenv({ path: path.resolve(process.cwd(), "../../.env") });
 
-const QUICKNODE_SVM_URL = "https://x402.quicknode.com/api/v1/solana-devnet/getSlot";
+const LOCAL_SVM_URL = "http://localhost:4020/premium/svm-data";
 
 function decodeB64Json(input: string | null) {
   if (!input) return null;
@@ -42,15 +42,13 @@ async function main() {
   });
   const httpClient = new x402HTTPClient(client);
 
-  const url = process.env.SVM_RESOURCE_URL ?? QUICKNODE_SVM_URL;
+  const url = process.env.SVM_RESOURCE_URL ?? LOCAL_SVM_URL;
   console.log(`\nTarget: ${url}\n`);
 
   // First request — expect 402
   console.log("--- First Request (expect 402) ---");
   const firstOpts: RequestInit = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method: "getSlot", params: [], id: 1 }),
+    method: "GET",
   };
 
   const first = await fetch(url, firstOpts);
@@ -96,7 +94,6 @@ async function main() {
   const second = await fetch(url, {
     ...firstOpts,
     headers: {
-      ...Object.fromEntries(new Headers(firstOpts.headers).entries()),
       ...paymentHeaders,
     },
   });
