@@ -1,4 +1,4 @@
-# x402 SVM 详细过程解析（中文）
+# x402 SVM 详细过程解析
 
 - 运行时间：2026-03-14T03:20:14.453Z
 - 资源地址：http://localhost:4020/premium/svm-data
