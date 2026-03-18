@@ -8,7 +8,7 @@ import { toClientSvmSigner, SOLANA_DEVNET_CAIP2 } from "@x402/svm";
 
 loadDotenv({ path: path.resolve(process.cwd(), "../../.env") });
 
-const LOCAL_SVM_URL = "http://localhost:4020/premium/svm-data";
+const LOCAL_SVM_URL = "http://localhost:4020/premium/svm";
 
 function decodeB64Json(input: string | null) {
   if (!input) return null;

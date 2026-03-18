@@ -20,7 +20,7 @@ const resourceServer = new x402ResourceServer(facilitatorClient)
   .register(svmNetwork, new ExactSvmScheme());
 
 const routes: Record<string, any> = {
-  "GET /premium/data": {
+  "GET /premium/evm": {
     accepts: [{ scheme: "exact", price: cfg.X402_PRICE_USD, network: evmNetwork, payTo: cfg.X402_SELLER_PAYTO }],
     description: "Premium x402-protected JSON (EVM)",
     mimeType: "application/json",
@@ -28,7 +28,7 @@ const routes: Record<string, any> = {
 };
 
 if (cfg.X402_SVM_SELLER_PAYTO) {
-  routes["GET /premium/svm-data"] = {
+  routes["GET /premium/svm"] = {
     accepts: [{ scheme: "exact", price: cfg.X402_PRICE_USD, network: svmNetwork, asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", payTo: cfg.X402_SVM_SELLER_PAYTO }],
     description: "Premium x402-protected JSON (SVM)",
     mimeType: "application/json",
@@ -47,7 +47,7 @@ resourceServer.initialize().then(() => {
 
   app.get("/health", (_req, res) => { res.json({ ok: true }); });
 
-  app.get("/premium/data", (_req, res) => {
+  app.get("/premium/evm", (_req, res) => {
     res.json({
       data: {
         message: "x402 EVM payment succeeded",
@@ -62,7 +62,7 @@ resourceServer.initialize().then(() => {
     });
   });
 
-  app.get("/premium/svm-data", (_req, res) => {
+  app.get("/premium/svm", (_req, res) => {
     res.json({
       data: {
         message: "x402 SVM payment succeeded",

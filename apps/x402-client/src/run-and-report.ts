@@ -57,7 +57,7 @@ async function main() {
   registerExactEvmScheme(client, { signer: evmSigner });
   const httpClient = new x402HTTPClient(client);
 
-  const url = process.env.RESOURCE_SERVER_URL ?? "http://localhost:4020/premium/data";
+  const url = process.env.RESOURCE_SERVER_URL ?? "http://localhost:4020/premium/evm";
 
   const t0 = Date.now();
   const first = await fetch(url, { method: "GET" });
