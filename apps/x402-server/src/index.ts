@@ -31,25 +31,36 @@ function injectSettlement(): express.RequestHandler {
   return (_req, res, next) => {
     const originalEnd = res.end.bind(res);
     (res as any).end = function (chunk?: any, ...args: any[]) {
-      const header = res.getHeader("PAYMENT-RESPONSE");
-      if (header && chunk) {
-        try {
-          const settlement = JSON.parse(Buffer.from(String(header), "base64").toString("utf8"));
-          const body = JSON.parse(typeof chunk === "string" ? chunk : chunk.toString());
+      if (!chunk) return originalEnd(chunk, ...args);
+      try {
+        const body = JSON.parse(typeof chunk === "string" ? chunk : chunk.toString());
+
+        // Inject PAYMENT-RESPONSE (settlement result) into 200 body
+        const prHeader = res.getHeader("PAYMENT-RESPONSE");
+        if (prHeader) {
+          const settlement = JSON.parse(Buffer.from(String(prHeader), "base64").toString("utf8"));
           body.settlement = {
             success: settlement.success,
             transaction: settlement.transaction,
             network: settlement.network,
             payer: settlement.payer,
           };
-          const newBody = JSON.stringify(body);
-          res.setHeader("Content-Length", Buffer.byteLength(newBody));
-          return originalEnd(newBody, ...args);
-        } catch {
-          // Not JSON or decode failed, pass through
         }
+
+        // Inject PAYMENT-REQUIRED (decoded) into 402 body
+        const reqHeader = res.getHeader("PAYMENT-REQUIRED");
+        if (reqHeader) {
+          const paymentRequired = JSON.parse(Buffer.from(String(reqHeader), "base64").toString("utf8"));
+          body.paymentRequired = paymentRequired;
+        }
+
+        const newBody = JSON.stringify(body);
+        res.setHeader("Content-Length", Buffer.byteLength(newBody));
+        return originalEnd(newBody, ...args);
+      } catch {
+        // Not JSON or decode failed, pass through
+        return originalEnd(chunk, ...args);
       }
-      return originalEnd(chunk, ...args);
     };
     next();
   };
