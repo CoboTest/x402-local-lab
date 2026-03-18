@@ -22,7 +22,7 @@ const resourceServer = new x402ResourceServer(facilitatorClient)
 const routes: Record<string, any> = {
   "GET /premium/data": {
     accepts: [{ scheme: "exact", price: cfg.X402_PRICE_USD, network: evmNetwork, payTo: cfg.X402_SELLER_PAYTO }],
-    description: "Premium x402-protected JSON",
+    description: "Premium x402-protected JSON (EVM)",
     mimeType: "application/json",
   },
 };
@@ -35,29 +35,50 @@ if (cfg.X402_SVM_SELLER_PAYTO) {
   };
 }
 
-// Initialize first, then start server
 resourceServer.initialize().then(() => {
   console.log("[x402-server] resourceServer initialized");
 
-  // Debug: check supported kinds
   const evmKind = resourceServer.getSupportedKind(x402Version, evmNetwork, "exact");
   const svmKind = resourceServer.getSupportedKind(x402Version, svmNetwork, "exact");
-  console.log(`[x402-server] EVM kind after init: ${evmKind ? "FOUND" : "NOT FOUND"}`);
-  console.log(`[x402-server] SVM kind after init: ${svmKind ? "FOUND" : "NOT FOUND"}`);
+  console.log(`[x402-server] EVM kind: ${evmKind ? "OK" : "NOT FOUND"}, SVM kind: ${svmKind ? "OK" : "NOT FOUND"}`);
 
   const app = express();
   app.use(paymentMiddleware(routes, resourceServer, undefined, undefined, false));
 
   app.get("/health", (_req, res) => { res.json({ ok: true }); });
+
   app.get("/premium/data", (_req, res) => {
-    res.json({ data: { message: "x402 payment succeeded", timestamp: new Date().toISOString() } });
+    res.json({
+      data: {
+        message: "x402 EVM payment succeeded",
+        timestamp: new Date().toISOString(),
+        price: cfg.X402_PRICE_USD,
+        network: evmNetwork,
+        payTo: cfg.X402_SELLER_PAYTO,
+        asset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        assetSymbol: "USDC",
+        facilitator: cfg.X402_FACILITATOR_URL,
+      },
+    });
   });
+
   app.get("/premium/svm-data", (_req, res) => {
-    res.json({ data: { message: "x402 SVM payment succeeded", timestamp: new Date().toISOString() } });
+    res.json({
+      data: {
+        message: "x402 SVM payment succeeded",
+        timestamp: new Date().toISOString(),
+        price: cfg.X402_PRICE_USD,
+        network: svmNetwork,
+        payTo: cfg.X402_SVM_SELLER_PAYTO,
+        asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        assetSymbol: "USDC",
+        facilitator: cfg.X402_FACILITATOR_URL,
+      },
+    });
   });
 
   const port = Number(process.env.PORT ?? 4020);
-  const host = process.env.HOST ?? "127.0.0.1";
+  const host = process.env.HOST ?? "0.0.0.0";
   app.listen(port, host, () => {
     console.log(`[x402-server] listening on http://${host}:${port}`);
   });
