@@ -44,13 +44,13 @@ cp .env.example .env
 # 必填
 X402_NETWORK=eip155:84532
 X402_FACILITATOR_URL=https://www.x402.org/facilitator
-X402_SELLER_PAYTO=0xYOUR_BASE_SEPOLIA_ADDRESS    # 收款地址
+X402_SELLER_PAYTO=0xYOUR_BASE_SEPOLIA_ADDRESS    # EVM 收款地址
 X402_PRICE_USD=0.001                              # 默认价格（USD）
 RPC_URL=https://sepolia.base.org
 
-# 可选：启用 SVM 路由
+# SVM 配置（现已必填）
 X402_SVM_NETWORK=solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
-X402_SVM_SELLER_PAYTO=YOUR_SOLANA_DEVNET_ADDRESS
+X402_SVM_SELLER_PAYTO=YOUR_SOLANA_DEVNET_ADDRESS  # SVM 收款地址
 ```
 
 > ⚠️ Facilitator URL 必须带 `www.`（`https://www.x402.org/facilitator`），不带会 308 重定向导致静默失败。

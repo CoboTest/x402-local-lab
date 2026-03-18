@@ -106,16 +106,13 @@ const routes: Record<string, any> = {
     mimeType: "application/json",
     unpaidResponseBody: unpaidBody("Premium x402-protected JSON (EVM)", evmNetwork, EVM_ASSET, cfg.X402_SELLER_PAYTO),
   },
-};
-
-if (cfg.X402_SVM_SELLER_PAYTO) {
-  routes["GET /premium/svm"] = {
+  "GET /premium/svm": {
     accepts: [{ scheme: "exact", price: resolvePrice, network: svmNetwork, asset: SVM_ASSET, payTo: cfg.X402_SVM_SELLER_PAYTO }],
     description: "Premium x402-protected JSON (SVM)",
     mimeType: "application/json",
     unpaidResponseBody: unpaidBody("Premium x402-protected JSON (SVM)", svmNetwork, SVM_ASSET, cfg.X402_SVM_SELLER_PAYTO),
-  };
-}
+  },
+};
 
 resourceServer.initialize().then(() => {
   console.log("[x402-server] resourceServer initialized");

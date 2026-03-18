@@ -9,10 +9,11 @@ const sharedSchema = z.object({
   X402_SELLER_PAYTO: evmOrSolanaAddress,
   X402_PRICE_USD: z.string().min(1),
   RPC_URL: z.string().url(),
-  // SVM optional fields
-  X402_SVM_SELLER_PAYTO: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/).optional(),
-  SOLANA_PRIVATE_KEY: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{64,88}$/).optional(),
+  // SVM fields (now required)
+  X402_SVM_SELLER_PAYTO: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/),
   X402_SVM_NETWORK: z.string().min(1).default("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"),
+  // Optional for server, required for client
+  SOLANA_PRIVATE_KEY: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{64,88}$/).optional(),
 });
 
 const clientSchema = sharedSchema.extend({
