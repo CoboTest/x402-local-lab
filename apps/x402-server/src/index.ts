@@ -19,7 +19,43 @@ const resourceServer = new x402ResourceServer(facilitatorClient)
   .register(evmNetwork, new ExactEvmScheme())
   .register(svmNetwork, new ExactSvmScheme());
 
-/** Resolve price from ?amount= query param or fall back to env default */
+/**
+ * Middleware: inject settlement result into JSON response body.
+ *
+ * Wraps res.end BEFORE paymentMiddleware. When paymentMiddleware flushes
+ * the buffered response, it calls our wrapped res.end. At that point
+ * PAYMENT-RESPONSE header is already set, so we can decode it and merge
+ * settlement data into the JSON body.
+ */
+function injectSettlement(): express.RequestHandler {
+  return (_req, res, next) => {
+    const originalEnd = res.end.bind(res);
+    (res as any).end = function (chunk?: any, ...args: any[]) {
+      const header = res.getHeader("PAYMENT-RESPONSE");
+      if (header && chunk) {
+        try {
+          const settlement = JSON.parse(Buffer.from(String(header), "base64").toString("utf8"));
+          const body = JSON.parse(typeof chunk === "string" ? chunk : chunk.toString());
+          body.settlement = {
+            success: settlement.success,
+            transaction: settlement.transaction,
+            network: settlement.network,
+            payer: settlement.payer,
+          };
+          const newBody = JSON.stringify(body);
+          res.setHeader("Content-Length", Buffer.byteLength(newBody));
+          return originalEnd(newBody, ...args);
+        } catch {
+          // Not JSON or decode failed, pass through
+        }
+      }
+      return originalEnd(chunk, ...args);
+    };
+    next();
+  };
+}
+
+/** Resolve price from ?amount= query param or env default */
 function resolvePrice(context: any): string {
   const q = context.adapter?.getQueryParam?.("amount");
   const amount = Array.isArray(q) ? q[0] : q;
@@ -75,11 +111,17 @@ resourceServer.initialize().then(() => {
 
   const evmKind = resourceServer.getSupportedKind(x402Version, evmNetwork, "exact");
   const svmKind = resourceServer.getSupportedKind(x402Version, svmNetwork, "exact");
-  console.log(`[x402-server] EVM kind: ${evmKind ? "OK" : "NOT FOUND"}, SVM kind: ${svmKind ? "OK" : "NOT FOUND"}`);
+  console.log(`[x402-server] EVM: ${evmKind ? "OK" : "NOT FOUND"}, SVM: ${svmKind ? "OK" : "NOT FOUND"}`);
 
   const app = express();
+
+  // 1) Inject settlement data into response body (wraps res.end BEFORE paymentMiddleware)
+  app.use(injectSettlement());
+
+  // 2) x402 payment middleware
   app.use(paymentMiddleware(routes, resourceServer, undefined, undefined, false));
 
+  // 3) Routes
   app.get("/health", (_req, res) => { res.json({ ok: true }); });
 
   app.get("/premium/evm", (req, res) => {
