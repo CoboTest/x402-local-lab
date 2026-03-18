@@ -207,7 +207,7 @@ resourceServer.initialize().then(() => {
   });
 
   const port = Number(process.env.PORT ?? 4020);
-  const host = process.env.HOST ?? "0.0.0.0";
+  const host = process.env.HOST ?? "127.0.0.1";
   app.listen(port, host, () => {
     console.log(`[x402-server] listening on http://${host}:${port}`);
   });
