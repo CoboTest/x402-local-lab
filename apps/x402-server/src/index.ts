@@ -32,7 +32,12 @@ const resourceServer = new x402ResourceServer(facilitatorClient)
   .register(evmNetwork, new ExactEvmScheme())
   .register(svmNetwork, new ExactSvmScheme())
   .registerExtension(siwxResourceServerExtension)
-  .onAfterSettle(createSIWxSettleHook({ storage: siwxStorage }));
+  .onAfterSettle(createSIWxSettleHook({
+    storage: siwxStorage,
+    onEvent: (event) => {
+      console.log(`[SIWX-settle] ${event.type} | resource=${event.resource} | address=${event.address}`);
+    },
+  }));
 
 // --- Helpers ---
 function injectSettlement(): express.RequestHandler {
@@ -163,8 +168,52 @@ const routes: Record<string, any> = {
   },
 };
 
+// Wrap the SIWX request hook to catch and log the actual error
+const originalSiwxHook = createSIWxRequestHook({
+  storage: siwxStorage,
+  onEvent: (event) => {
+    console.log(`[SIWX] ${event.type} | resource=${event.resource} | address=${(event as any).address ?? "N/A"} | error=${(event as any).error ?? "N/A"}`);
+  },
+});
+
 const httpServer = new x402HTTPResourceServer(resourceServer, routes)
-  .onProtectedRequest(createSIWxRequestHook({ storage: siwxStorage }));
+  .onProtectedRequest(async (context, routeConfig) => {
+    const header = context.adapter.getHeader("SIGN-IN-WITH-X") || context.adapter.getHeader("sign-in-with-x");
+    if (header) {
+      try {
+        const decoded = JSON.parse(Buffer.from(header, "base64").toString("utf8"));
+        console.log(`[SIWX-debug] Incoming payload: nonce=${decoded.nonce} address=${decoded.address} issuedAt=${decoded.issuedAt}`);
+
+        // Manual validation to see exactly what fails
+        const { parseSIWxHeader, validateSIWxMessage, verifySIWxSignature } = await import("@x402/extensions/sign-in-with-x");
+        const payload = parseSIWxHeader(header);
+        console.log(`[SIWX-debug] Parsed OK, address=${payload.address}`);
+
+        const resourceUri = context.adapter.getUrl();
+        console.log(`[SIWX-debug] Validating against resourceUri=${resourceUri}`);
+        const validation = await validateSIWxMessage(payload, resourceUri);
+        console.log(`[SIWX-debug] Validation: valid=${validation.valid} error=${(validation as any).error ?? "none"}`);
+
+        if (validation.valid) {
+          try {
+            const verification = await verifySIWxSignature(payload);
+            console.log(`[SIWX-debug] Verification: valid=${verification.valid} address=${(verification as any).address ?? "N/A"} error=${(verification as any).error ?? "none"}`);
+
+            if (verification.valid) {
+              const hasPaid = await siwxStorage.hasPaid(context.path, (verification as any).address);
+              console.log(`[SIWX-debug] hasPaid(${context.path}, ${(verification as any).address}) = ${hasPaid}`);
+            }
+          } catch (verifyErr: any) {
+            console.log(`[SIWX-debug] verifySIWxSignature threw: ${JSON.stringify(verifyErr)}`);
+            console.log(`[SIWX-debug] typeof=${typeof verifyErr} keys=${verifyErr ? Object.keys(verifyErr) : "null"}`);
+          }
+        }
+      } catch (e: any) {
+        console.log(`[SIWX-debug] Manual check error: ${JSON.stringify(e)} typeof=${typeof e}`);
+      }
+    }
+    return originalSiwxHook(context, routeConfig);
+  });
 
 resourceServer.initialize().then(() => {
   console.log("[x402-server] resourceServer initialized");
@@ -174,6 +223,15 @@ resourceServer.initialize().then(() => {
   console.log("[x402-server] Routes: /premium/* (pay-per-request) | /siwx/* (SIWX enabled)");
 
   const app = express();
+
+  // Request logging
+  app.use((req, _res, next) => {
+    const hasSiwx = !!req.headers["sign-in-with-x"];
+    const hasPayment = !!(req.headers["payment-signature"] || req.headers["x-payment"]);
+    console.log(`[REQ] ${req.method} ${req.path} | SIWX=${hasSiwx} | Payment=${hasPayment}`);
+    next();
+  });
+
   app.use(injectSettlement());
   app.use(paymentMiddlewareFromHTTPServer(httpServer, undefined, undefined, false));
 
