@@ -179,7 +179,14 @@ resourceServer.initialize().then(() => {
 
   app.get("/health", (_req, res) => { res.json({ ok: true }); });
   app.get("/debug/siwx", (_req, res) => {
-    res.json({ info: "In-memory SIWX paid wallets", storage: (siwxStorage as any)._storage ?? "not accessible" });
+    const map = (siwxStorage as any).paidAddresses as Map<string, Set<string>> | undefined;
+    const entries: Record<string, string[]> = {};
+    if (map) {
+      for (const [addr, resources] of map) {
+        entries[addr] = [...resources];
+      }
+    }
+    res.json({ info: "In-memory SIWX paid wallets", paidAddresses: entries });
   });
 
   // --- Pay-per-request handlers ---
